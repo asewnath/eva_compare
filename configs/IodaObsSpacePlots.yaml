@@ -1,0 +1,52 @@
+suppress_collection_display: False
+
+datasets:
+  - name: control
+    type: IodaObsSpace
+    filenames:
+      - {ctrl_path}
+    #channels: &channels 3,8
+    groups:
+      - name: ObsValue
+    #    variables: &variables [brightnessTemperature]
+      - name: GsiHofXBc
+      - name: hofx0
+      - name: MetaData
+      - name: oman
+
+  - name: experiment
+    type: IodaObsSpace
+    filenames:
+      - {exp_path}
+    #channels: *channels
+    groups:
+      - name: ObsValue
+    #    variables: *variables
+      - name: GsiHofXBc
+      - name: hofx0
+      - name: MetaData
+      - name: oman
+
+transforms:
+
+  # Generate omb for control
+  - transform: arithmetic
+    new name: control::ObsValueMinusHofx::${variable}
+    equals: control::ObsValue::${variable}-control::hofx0::${variable}
+    for:
+    #  variable: *variables
+      variable: 'all'
+
+  # Generate omb for experiment
+  - transform: arithmetic
+    new name: experiment::ObsValueMinusHofx::${variable}
+    equals: experiment::ObsValue::${variable}-experiment::hofx0::${variable}
+    for:
+    #  variable: *variables
+      variable: 'all'
+
+graphics:
+
+  plotting_backend: Emcpy
+  figure_list:
+

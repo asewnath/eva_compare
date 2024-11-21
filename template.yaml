@@ -1,0 +1,3 @@
+control_directory: /discover/nobackup/asewnath/SwellExperiments/control_swell_ufo_testing
+experiment_directory: /discover/nobackup/asewnath/SwellExperiments/experiment_swell_ufo_testing
+swell_run_type: ufo_testing
