@@ -10,9 +10,8 @@ datasets:
       - name: ObsValue
     #    variables: &variables [brightnessTemperature]
       - name: GsiHofXBc
-      - name: hofx0
       - name: MetaData
-      - name: oman
+      - name: hofx
 
   - name: experiment
     type: IodaObsSpace
@@ -23,27 +22,26 @@ datasets:
       - name: ObsValue
     #    variables: *variables
       - name: GsiHofXBc
-      - name: hofx0
       - name: MetaData
-      - name: oman
+      - name: hofx
 
 transforms:
 
   # Generate omb for control
   - transform: arithmetic
     new name: control::ObsValueMinusHofx::${variable}
-    equals: control::ObsValue::${variable}-control::hofx0::${variable}
-    for:
+    equals: control::ObsValue::${variable}-control::hofx::${variable}
+    #for:
     #  variable: *variables
-      variable: 'all'
+    #  variable: 'all'
 
   # Generate omb for experiment
   - transform: arithmetic
     new name: experiment::ObsValueMinusHofx::${variable}
-    equals: experiment::ObsValue::${variable}-experiment::hofx0::${variable}
-    for:
+    equals: experiment::ObsValue::${variable}-experiment::hofx::${variable}
+    #for:
     #  variable: *variables
-      variable: 'all'
+    #  variable: 'all'
 
 graphics:
 
