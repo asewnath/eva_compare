@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from eva.eva_driver import eva
 from datetime import datetime as dt
 from datetime import timedelta
-
+import netCDF4 as nc
 
 @dataclass
 class SwellRun:
@@ -55,6 +55,14 @@ def eva_compare(exp_run: SwellRun, ctrl_run: SwellRun, run_type: str) -> None:
                 filename = f"swell-{run_type}.{obs}.{datetime}.nc4"
                 ctrl_path = f"{ctrl_run.swell_dir}/run/{cycle_time}/{model}/{filename}"
                 exp_path  = f"{exp_run.swell_dir}/run/{cycle_time}/{model}/{filename}"
+
+                # Open file and extract variables and channels
+                ctrl_ds = nc.Dataset(ctrl_path)
+                if "Channel" in ctrl_ds.dimensions:
+                    ch_dim = ctrl_ds.dimensions["Channel"]
+                    ch_list = list(range(1, ch_dim))
+                var_list = list(ctrl_ds.groups["ObsValue"].variables)
+
                 # Update filenames in templates
                 for ind in range(len(config["datasets"])):
                     if config["datasets"][ind]["name"] == "control":
@@ -63,6 +71,17 @@ def eva_compare(exp_run: SwellRun, ctrl_run: SwellRun, run_type: str) -> None:
                         config["datasets"][ind]["filenames"] = [exp_path]
                     else:
                         raise ValueError("datasets should be named control and experiment")
+                    # Update variable list
+                    config["datasets"][ind]["groups"][0]["variables"] = var_list
+
+                # Update template in transforms
+                for ind in range(len(config["transforms"])):
+                    config["transforms"][ind]["for"]["variable"] = var_list
+
+                # Update template in figures
+                for ind in range(len(config["graphics"]["figure_list"])):
+                    config["graphics"]["figure_list"][ind]["batch figure"]["variables"] = var_list
+
                 # Run eva
                 eva(config)
 

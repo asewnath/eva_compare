@@ -5,10 +5,10 @@ datasets:
     type: IodaObsSpace
     filenames:
       - {ctrl_path}
-    #channels: &channels 3,8
+    #channels: {chs}
     groups:
       - name: ObsValue
-    #    variables: &variables [brightnessTemperature]
+        variables: {var}
       - name: GsiHofXBc
       - name: MetaData
       - name: hofx
@@ -17,10 +17,10 @@ datasets:
     type: IodaObsSpace
     filenames:
       - {exp_path}
-    #channels: *channels
+    #channels: {chs}
     groups:
       - name: ObsValue
-    #    variables: *variables
+        variables: {var}
       - name: GsiHofXBc
       - name: MetaData
       - name: hofx
@@ -31,20 +31,51 @@ transforms:
   - transform: arithmetic
     new name: control::ObsValueMinusHofx::${variable}
     equals: control::ObsValue::${variable}-control::hofx::${variable}
-    #for:
-    #  variable: *variables
-    #  variable: 'all'
+    for:
+      variable: {var}
 
   # Generate omb for experiment
   - transform: arithmetic
     new name: experiment::ObsValueMinusHofx::${variable}
     equals: experiment::ObsValue::${variable}-experiment::hofx::${variable}
-    #for:
-    #  variable: *variables
-    #  variable: 'all'
+    for:
+      variable: {var}
+
 
 graphics:
 
   plotting_backend: Emcpy
   figure_list:
 
+  - batch figure:
+      variables: {var}
+    #  channels: {chs}
+    figure:
+      layout: [1,1]
+      title: 'Observations vs. JEDI h(x) | {observation} | ${variable}'
+      output name: observation_scatter_plots/observation/${variable}/${channel}/jedi_hofx_vs_obs.png
+    plots:
+      - add_xlabel: 'Observation Value'
+        add_ylabel: 'JEDI h(x)'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::ObsValue::${variable}
+          y:
+            variable: experiment::hofx::${variable}
+          #channel: ${channel}
+          markersize: 5
+          color: 'black'
+          label: 'JEDI h(x) versus obs (experiment)'
+        - type: Scatter
+          x:
+            variable: control::ObsValue::${variable}
+          y:
+            variable: control::hofx::${variable}
+          #channel: ${channel}
+          markersize: 5
+          color: 'red'
+          label: 'JEDI h(x) versus obs (control)'
